@@ -1,0 +1,253 @@
+/* Professional Quiz Container */
+.quiz-container {
+  max-width: 700px;
+  margin: 60px auto;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Quiz Card Header */
+.quiz-card h3 {
+  margin-bottom: 24px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+/* Options Container */
+.options {
+  margin-bottom: 32px;
+}
+
+/* Individual Option Styling */
+.option {
+  display: block;
+  padding: 16px 20px;
+  margin: 12px 0;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 15px;
+  font-weight: 500;
+  color: #374151;
+  background: #ffffff;
+  position: relative;
+  user-select: none;
+}
+
+/* Option Hover State */
+.option:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+/* Selected Option */
+.option.selected {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Option Focus State for Accessibility */
+.option:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Button Container */
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  gap: 16px;
+}
+
+/* Base Button Styling */
+.buttons button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.01em;
+  min-width: 120px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Button Disabled State */
+.buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Previous Button */
+.buttons button:first-child {
+  background: #6b7280;
+  color: white;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+}
+
+.buttons button:first-child:hover:not(:disabled) {
+  background: #4b5563;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(107, 114, 128, 0.3);
+}
+
+.buttons button:first-child:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Next Button */
+.buttons button:last-child {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.buttons button:last-child:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.buttons button:last-child:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Score Section */
+.score-section {
+  text-align: center;
+  padding: 48px 40px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Score Section Background Pattern */
+.score-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.03) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(120, 119, 198, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Quiz Finished Title */
+.score-section h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #059669;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
+}
+
+/* Score Display */
+.score-section p {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Score Percentage */
+.score-section .score-percentage {
+  font-size: 36px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 16px 0;
+}
+
+/* Progress Indicator */
+.progress-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 8px;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+  background: #3b82f6;
+  transform: scale(1.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .quiz-container {
+    margin: 20px;
+    padding: 24px;
+  }
+  
+  .buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .buttons button {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .score-section {
+    padding: 32px 24px;
+  }
+  
+  .quiz-card h3 {
+    font-size: 18px;
+  }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .option {
+    border-width: 3px;
+  }
+  
+  .option.selected {
+    border-width: 4px;
+  }
+}
