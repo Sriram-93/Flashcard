@@ -1,0 +1,41 @@
+.navbar {
+  background: linear-gradient(45deg, #ff0000, #ff4d4d); /* Red gradient */
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.navbar-logo {
+  color: white;
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.navbar-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Links as boxed buttons */
+.nav-btn {
+  background-color: white;      /* Box background */
+  color: #ff0000;               /* Red text */
+  padding: 10px 20px;           /* Box padding */
+  border-radius: 8px;           /* Rounded corners */
+  text-decoration: none;
+  font-weight: bold;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+  display: inline-block;        /* Make it block-like */
+}
+
+/* Hover effect */
+.nav-btn:hover {
+  background-color: #ff0000;    /* Box turns red */
+  color: white;                 /* Text turns white */
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
