@@ -1,5 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  Plus, 
+  MoreVertical, 
+  Trash2, 
+  Filter, 
+  CheckSquare, 
+  Square, 
+  Play, 
+  Mic, 
+  HelpCircle,
+  Calendar,
+  Layers,
+  ChevronLeft,
+  Search
+} from 'lucide-react';
 import './ReviewPage.css';
 
 const ReviewPage = () => {
@@ -10,20 +25,42 @@ const ReviewPage = () => {
   const [selectedMark, setSelectedMark] = useState('all');
   const [menuOpenIndex, setMenuOpenIndex] = useState(null);
   const [flippedCards, setFlippedCards] = useState(new Set());
+  const [selectedCards, setSelectedCards] = useState(new Set());
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-  // Load history from localStorage on mount
   useEffect(() => {
-    const savedHistory = JSON.parse(localStorage.getItem('flashcardHistory')) || [];
-    setHistory(savedHistory);
+    const fetchFlashcards = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/flashcards`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const cards = await res.json();
+          
+          // Group flat flashcards back into 'deck' structures by filename/date
+          const deckMap = {};
+          cards.forEach(card => {
+            const key = card.filename || "Unknown Deck";
+            if (!deckMap[key]) deckMap[key] = { filename: key, uploadDate: card.uploadDate, cards: [] };
+            deckMap[key].cards.push(card);
+          });
+          const groupedHistory = Object.values(deckMap);
+          setHistory(groupedHistory);
 
-    if (savedHistory.length > 0) {
-      const latest = savedHistory[savedHistory.length - 1];
-      setSelectedUpload(latest);
-      setFilteredCards(latest.cards || []);
-    }
-  }, []);
+          if (groupedHistory.length > 0) {
+            const latest = groupedHistory[0]; // Already sorted descending by backend
+            setSelectedUpload(latest);
+            setFilteredCards(latest.cards || []);
+            setSelectedCards(new Set(latest.cards?.map((_, i) => i) || []));
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch library", e);
+      }
+    };
+    fetchFlashcards();
+  }, [API_URL]);
 
-  // Handle card flip animation
   const flipCard = (cardIndex) => {
     const newFlipped = new Set(flippedCards);
     if (newFlipped.has(cardIndex)) {
@@ -34,7 +71,6 @@ const ReviewPage = () => {
     setFlippedCards(newFlipped);
   };
 
-  // Enhanced filter function with mark-wise classification
   const handleFilter = (marks) => {
     setSelectedMark(marks);
     if (!selectedUpload) return;
@@ -48,7 +84,6 @@ const ReviewPage = () => {
       setFilteredCards(filtered);
     }
     
-    // Clear flipped cards when filtering
     setFlippedCards(new Set());
   };
 
@@ -57,22 +92,23 @@ const ReviewPage = () => {
     setSelectedMark('all');
     setFilteredCards(upload.cards || []);
     setFlippedCards(new Set());
+    setSelectedCards(new Set((upload.cards || []).map((_, i) => i)));
   };
 
   const countByMarks = (marks) =>
     selectedUpload?.cards.filter((c) => Number(c.marks || 1) === Number(marks)).length || 0;
 
-  // Delete upload from history
-  const handleDeleteUpload = (idx) => {
+  const handleDeleteUpload = async (idx) => {
+    // In a real database we would send a DELETE to the backend here.
+    // For now we just remove from UI state.
     const uploadToDelete = history[idx];
     const newHistory = [...history];
     newHistory.splice(idx, 1);
     setHistory(newHistory);
-    localStorage.setItem('flashcardHistory', JSON.stringify(newHistory));
 
     if (selectedUpload === uploadToDelete) {
       if (newHistory.length > 0) {
-        const latest = newHistory[newHistory.length - 1];
+        const latest = newHistory[0];
         setSelectedUpload(latest);
         setFilteredCards(latest.cards || []);
         setSelectedMark('all');
@@ -85,134 +121,164 @@ const ReviewPage = () => {
     setMenuOpenIndex(null);
   };
 
-  // Redirect to input page for adding new flashcard
   const redirectToInputPage = () => {
     navigate('/input');
   };
 
-  // Get mark-specific styling
   const getMarkStyling = (marks) => {
     const markNum = Number(marks || 1);
     switch (markNum) {
       case 1:
-        return {
-          borderColor: '#17a2b8',
-          bgGradient: 'linear-gradient(135deg, #e6f7ff, #d6f3ff)',
-          badgeColor: '#17a2b8'
-        };
+        return { borderColor: '#3B82F6' }; // Blue
       case 2:
-        return {
-          borderColor: '#28a745',
-          bgGradient: 'linear-gradient(135deg, #e8f5e9, #d4edda)',
-          badgeColor: '#28a745'
-        };
+        return { borderColor: '#10B981' }; // Emerald
       case 5:
-        return {
-          borderColor: '#ffc107',
-          bgGradient: 'linear-gradient(135deg, #fff8e1, #fff3cd)',
-          badgeColor: '#ffc107'
-        };
+        return { borderColor: '#F59E0B' }; // Amber
       case 10:
-        return {
-          borderColor: '#dc3545',
-          bgGradient: 'linear-gradient(135deg, #ffeaea, #f8d7da)',
-          badgeColor: '#dc3545'
-        };
+        return { borderColor: '#EF4444' }; // Red
       default:
-        return {
-          borderColor: '#28a745',
-          bgGradient: 'linear-gradient(135deg, #f8f9fa, #e9ecef)',
-          badgeColor: '#28a745'
-        };
+        return { borderColor: '#4F46E5' }; // Indigo
     }
   };
 
+  const toggleSelectCard = (e, index) => {
+    e.stopPropagation();
+    const newSelected = new Set(selectedCards);
+    if (newSelected.has(index)) {
+      newSelected.delete(index);
+    } else {
+      newSelected.add(index);
+    }
+    setSelectedCards(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedCards.size === filteredCards.length) {
+      setSelectedCards(new Set()); // deselect all
+    } else {
+      setSelectedCards(new Set(filteredCards.map((_, i) => i))); // select all currently filtered
+    }
+  };
+
+  const handleSendToActivity = (path) => {
+    if (selectedCards.size === 0) {
+      alert("Please select at least one flashcard first.");
+      return;
+    }
+    const cardsToPass = filteredCards.filter((_, i) => selectedCards.has(i));
+    navigate(path, { state: { selectedCards: cardsToPass } });
+  };
+
   return (
-    <div className="review-page-container">
-      {/* Left Sidebar */}
-      <div className="history-sidebar">
-        <h3>📜 Upload History</h3>
-        {history.length === 0 && <p>No uploads yet.</p>}
-        {history.map((upload, idx) => (
-          <div key={idx} className="upload-item-container">
-            <button
-              className={`upload-item ${selectedUpload === upload ? 'selected' : ''}`}
-              onClick={() => handleSelectUpload(upload)}
-            >
-              {upload.filename || `Upload ${idx + 1}`} <br />
-              <small>{upload.date}</small>
-            </button>
-
-            <button
-              className="menu-button"
-              onClick={() => setMenuOpenIndex(menuOpenIndex === idx ? null : idx)}
-            >
-              ⋮
-            </button>
-
-            {menuOpenIndex === idx && (
-              <button
-                className="delete-button"
-                onClick={() => handleDeleteUpload(idx)}
-              >
-                Delete
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Right/Main Area */}
-      <div className="review-main">
-        <div className="content-header">
-          <span>📚</span>
-          <h2>Review Flashcards</h2>
+    <div className="review-page">
+      
+      <div className="history-sidebar glass-panel">
+        <div className="sidebar-header">
+          <Layers size={18} />
+          <h3 className="sidebar-title">Library</h3>
         </div>
-
-        {/* Add New Flashcard Button */}
-        <button className="add-card-btn" onClick={redirectToInputPage}>
-          + Add New Flashcard
+        <button className="add-card-btn btn btn-primary flex-center" onClick={redirectToInputPage}>
+          <Plus size={18} />
+          <span>New Deck</span>
         </button>
 
-        {/* Mark Filter Buttons */}
-        <div className="filter-buttons">
-          <button 
-            className={`filter-btn ${selectedMark === 'all' ? 'active' : ''}`}
-            onClick={() => handleFilter('all')}
-          >
-            All ({selectedUpload?.cards.length || 0})
+        <div className="sidebar-list">
+          {history.length === 0 && <p className="empty-text">No flashcards yet.</p>}
+          {history.map((upload, idx) => (
+            <div key={idx} className="upload-item-container">
+              <button
+                className={`upload-item ${selectedUpload === upload ? 'active' : ''}`}
+                onClick={() => handleSelectUpload(upload)}
+              >
+                <span className="upload-name">{upload.filename || `Deck ${idx + 1}`}</span>
+                <div className="upload-meta">
+                  <Calendar size={12} />
+                  <span className="upload-date">{new Date(upload.uploadDate || Date.now()).toLocaleDateString()}</span>
+                </div>
+              </button>
+
+              <button
+                className="menu-icon-btn"
+                onClick={() => setMenuOpenIndex(menuOpenIndex === idx ? null : idx)}
+              >
+                <MoreVertical size={16} />
+              </button>
+
+              {menuOpenIndex === idx && (
+                <button
+                  className="delete-deck-btn"
+                  onClick={() => handleDeleteUpload(idx)}
+                >
+                  <Trash2 size={14} />
+                  <span>Delete</span>
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="review-main">
+        <div className="content-header">
+          <button className="back-btn" onClick={() => navigate('/home')}>
+             <ChevronLeft size={20} />
           </button>
-          <button 
-            className={`filter-btn ${selectedMark === '1' ? 'active' : ''}`}
-            onClick={() => handleFilter(1)}
-          >
-            1 Mark ({countByMarks(1)})
-          </button>
-          <button 
-            className={`filter-btn ${selectedMark === '2' ? 'active' : ''}`}
-            onClick={() => handleFilter(2)}
-          >
-            2 Marks ({countByMarks(2)})
-          </button>
-          <button 
-            className={`filter-btn ${selectedMark === '5' ? 'active' : ''}`}
-            onClick={() => handleFilter(5)}
-          >
-            5 Marks ({countByMarks(5)})
-          </button>
-          <button 
-            className={`filter-btn ${selectedMark === '10' ? 'active' : ''}`}
-            onClick={() => handleFilter(10)}
-          >
-            10 Marks ({countByMarks(10)})
-          </button>
+          <h2>{selectedUpload?.filename || "Review Flashcards"}</h2>
         </div>
 
-        {/* Enhanced Flashcards List with 3D Flip Animation */}
-        <div className="flashcards-container">
+        {selectedUpload && (
+          <div className="filter-scroll-wrapper">
+            <div className="filter-icon-label">
+              <Filter size={16} />
+              <span>Filter by Marks:</span>
+            </div>
+            <div className="filter-chips">
+              <button 
+                className={`chip ${selectedMark === 'all' ? 'active' : ''}`}
+                onClick={() => handleFilter('all')}
+              >
+                All ({selectedUpload?.cards.length || 0})
+              </button>
+              {[1, 2, 5, 10].map(m => (
+                <button 
+                  key={m}
+                  className={`chip ${selectedMark === m ? 'active' : ''}`}
+                  onClick={() => handleFilter(m)}
+                >
+                  {m} Marks ({countByMarks(m)})
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {filteredCards.length > 0 && (
+          <div className="review-actions-bar">
+            <button className="select-all-btn" onClick={toggleSelectAll}>
+              {selectedCards.size === filteredCards.length ? <CheckSquare size={18} /> : <Square size={18} />}
+              <span>{selectedCards.size === filteredCards.length ? "Deselect All" : "Select All"}</span>
+            </button>
+            <span className="selected-counter">
+              {selectedCards.size} Selected
+            </span>
+            <div className="action-btns">
+              <button className="btn btn-primary action-btn" onClick={() => handleSendToActivity('/quiz')}>
+                <Play size={16} />
+                <span>Take Quiz</span>
+              </button>
+              <button className="btn btn-primary action-btn" onClick={() => handleSendToActivity('/qnspeak')}>
+                <Mic size={16} />
+                <span>QnSpeak</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="flashcards-layout">
           {filteredCards.length === 0 && (
-            <div className="no-cards">
-              <p>No flashcards for this selection.</p>
+            <div className="no-cards glass-panel">
+              <Search size={40} className="no-cards-icon" />
+              <p>No flashcards to display for this selection.</p>
             </div>
           )}
           
@@ -221,56 +287,49 @@ const ReviewPage = () => {
             const styling = getMarkStyling(card.marks);
             
             return (
-              <div key={idx} className="flashcard-container">
+              <div key={idx} className="fc-wrapper">
                 <div 
-                  className={`flashcard ${isFlipped ? 'flipped' : ''}`}
+                  className={`fc-inner ${isFlipped ? 'flipped' : ''}`}
                   onClick={() => flipCard(idx)}
-                  data-marks={card.marks || 1}
                 >
-                  {/* Front Face */}
                   <div 
-                    className="flashcard-face flashcard-front"
-                    style={{
-                      background: styling.bgGradient,
-                      borderLeft: `5px solid ${styling.borderColor}`
-                    }}
+                    className="fc-face fc-front glass-panel"
+                    style={{ borderTop: `4px solid ${styling.borderColor}` }}
                   >
-                    <div className="question">
-                      <strong>Q:</strong> {card.question}
-                    </div>
-                    <div className="marks">
-                      <span 
-                        className="marks-badge"
-                        style={{ backgroundColor: styling.badgeColor }}
+                    <div className="fc-header">
+                      <div className="fc-marks-badge" style={{ backgroundColor: styling.borderColor }}>
+                        {card.marks || 1} Marks
+                      </div>
+                      <div 
+                        className={`fc-checkbox-wrapper ${selectedCards.has(idx) ? 'selected' : ''}`}
+                        onClick={(e) => toggleSelectCard(e, idx)}
                       >
-                        {card.marks || 1}
-                      </span>
-                      <span>Marks: {card.marks || 1}</span>
+                        {selectedCards.has(idx) ? <CheckSquare size={20} /> : <Square size={20} />}
+                      </div>
                     </div>
-                    <div className="flip-indicator">Click to flip ↻</div>
+                    
+                    <div className="fc-content">
+                      <div className="fc-label-wrapper">
+                        <HelpCircle size={16} className="fc-icon" />
+                        <span className="fc-label">Question</span>
+                      </div>
+                      <p className="fc-text">{card.question}</p>
+                    </div>
+                    <div className="fc-footer">Tap to reveal answer</div>
                   </div>
 
-                  {/* Back Face */}
                   <div 
-                    className="flashcard-face flashcard-back"
-                    style={{
-                      background: 'linear-gradient(135deg, #e8f5e9, #d4edda)',
-                      borderLeft: '5px solid #007bff'
-                    }}
+                    className="fc-face fc-back glass-panel"
+                    style={{ borderTop: `4px solid ${styling.borderColor}` }}
                   >
-                    <div className="answer">
-                      <strong>A:</strong> {card.answer}
+                    <div className="fc-content">
+                    <div className="fc-label-wrapper">
+                        <CheckSquare size={16} className="fc-icon answer-icon" />
+                        <span className="fc-label answer-label">Answer</span>
+                      </div>
+                      <p className="fc-text">{card.answer}</p>
                     </div>
-                    <div className="marks">
-                      <span 
-                        className="marks-badge"
-                        style={{ backgroundColor: styling.badgeColor }}
-                      >
-                        {card.marks || 1}
-                      </span>
-                      <span>Marks: {card.marks || 1}</span>
-                    </div>
-                    <div className="flip-indicator">Click to flip ↻</div>
+                    <div className="fc-footer">Tap to hide</div>
                   </div>
                 </div>
               </div>

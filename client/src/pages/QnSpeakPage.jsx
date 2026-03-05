@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, Link } from "react-router-dom";
+import "./QnSpeakPage.css";
 
 const QnSpeakPage = () => {
+  const location = useLocation();
   const [flashcards, setFlashcards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -24,11 +27,17 @@ const QnSpeakPage = () => {
     if (marks === 1 || marks === 2) return "easy";
     if (marks === 5) return "medium";
     if (marks === 10) return "hard";
-    return "easy"; // default fallback
+    return "easy"; 
   };
 
   const loadFlashcards = () => {
-    const cards = JSON.parse(localStorage.getItem("flashcards")) || [];
+    const passedCards = location.state?.selectedCards;
+    
+    if (!passedCards || passedCards.length === 0) {
+      return; 
+    }
+
+    const cards = passedCards;
     setFlashcards(cards);
 
     const totals = { easy: 0, medium: 0, hard: 0 };
@@ -47,9 +56,13 @@ const QnSpeakPage = () => {
 
   useEffect(() => {
     loadFlashcards();
-    window.addEventListener("storage", loadFlashcards);
-    return () => window.removeEventListener("storage", loadFlashcards);
-  }, []);
+    
+    // Only listen to storage events if we don't have passed state
+    if (!location.state?.selectedCards) {
+      window.addEventListener("storage", loadFlashcards);
+      return () => window.removeEventListener("storage", loadFlashcards);
+    }
+  }, [location.state]);
 
   const currentCard = flashcards[currentIndex];
 
@@ -98,47 +111,79 @@ const QnSpeakPage = () => {
       setCurrentIndex(nextIdx);
       incrementProgress(markToDifficulty(Number(flashcards[nextIdx].marks)));
     } else {
-      alert("🎉 You have completed all flashcards!");
+      alert("You have completed all flashcards.");
       setCurrentIndex(0);
     }
   };
 
+  if (!location.state?.selectedCards || location.state.selectedCards.length === 0) {
+    return (
+      <div className="qn-page">
+        <div className="qn-container glass-panel" style={{ textAlign: "center" }}>
+          <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>No Context Selected</h2>
+          <p style={{ color: "var(--text-secondary)", fontSize: "1.1rem" }}>
+            Please select a document from your Library to begin QnSpeak.
+          </p>
+          <div style={{ marginTop: "2rem" }}>
+            <Link to="/review" className="btn btn-primary">Return to Library</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (flashcards.length === 0) {
-    return <p style={styles.noFlashcards}>No flashcards available.</p>;
+    return (
+      <div className="qn-empty glass-panel">
+        <p>Loading document context...</p>
+      </div>
+    );
   }
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>📚 QnSpeak Flashcards</h2>
+    <div className="qn-page">
+      
+      <div className="qn-container glass-panel">
+        <h2 className="qn-title">QnSpeak Flashcards</h2>
 
-      <div style={styles.cardBox}>
-        <div style={styles.question}><strong>Q:</strong> {currentCard.question}</div>
+        <div className="qn-card">
+          <div className="qn-question">
+            <span className="qn-label">Question</span>
+            <p>{currentCard.question}</p>
+          </div>
 
-        {showAnswer && (
-          <div style={styles.answer}><strong>A:</strong> {currentCard.answer}</div>
-        )}
+          <div className={`qn-answer-area ${showAnswer ? 'revealed' : ''}`}>
+            {showAnswer ? (
+              <div className="qn-answer">
+                <span className="qn-label success-label">Answer</span>
+                <p>{currentCard.answer}</p>
+              </div>
+            ) : (
+              <div className="qn-placeholder">
+                <p>Listen to the answer to reveal text</p>
+              </div>
+            )}
+          </div>
 
-        <div style={styles.buttons}>
-          <button style={styles.speakBtn} onClick={speakAnswer}>🎤 Voice Answer</button>
-          <button style={styles.stopBtn} onClick={stopSpeech}>⏹ Stop</button>
-          <button style={styles.nextBtn} onClick={nextQuestion}>➡ Next</button>
+          <div className="qn-actions">
+            <button className="btn btn-primary" onClick={speakAnswer}>Listen</button>
+            <button className="btn btn-secondary" onClick={stopSpeech}>Stop</button>
+            <button className="btn btn-secondary next-btn" onClick={nextQuestion}>Next</button>
+          </div>
         </div>
 
-        <div style={styles.progressContainer}>
-          <h4>Progress by Difficulty:</h4>
+        <div className="qn-progress-container glass-panel">
+          <h4 className="qn-progress-title">Completion Progress</h4>
           {["easy", "medium", "hard"].map((level) => (
-            <div key={level} style={styles.progressRow}>
-              <strong>{level.charAt(0).toUpperCase() + level.slice(1)}</strong>
-              <div style={styles.progressBarBg}>
+            <div key={level} className="qn-progress-row">
+              <span className="qn-level-name">{level}</span>
+              <div className="qn-progress-bar-bg">
                 <div
-                  style={{
-                    ...styles.progressBarFill,
-                    width: `${difficultyProgress[level]}%`,
-                    backgroundColor: level === "easy" ? "#4caf50" : level === "medium" ? "#ff9800" : "#f44336",
-                  }}
+                  className={`qn-progress-bar-fill ${level}`}
+                  style={{ width: `${difficultyProgress[level]}%` }}
                 ></div>
               </div>
-              <span style={styles.progressText}>{difficultyProgress[level]}%</span>
+              <span className="qn-progress-text">{difficultyProgress[level]}%</span>
             </div>
           ))}
         </div>
@@ -146,125 +191,5 @@ const QnSpeakPage = () => {
     </div>
   );
 };
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
-    flexDirection: "column",
-    backgroundColor: "#e8f5e8",
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    padding: "2rem",
-  },
-  title: { 
-    marginBottom: "20px", 
-    color: "#00695c",
-    fontSize: "24px",
-    fontWeight: "600",
-  },
-  cardBox: {
-    border: "1px solid #b0bec5",
-    borderRadius: "12px",
-    padding: "2rem",
-    width: "450px",
-    backgroundColor: "#ffffff",
-    boxShadow: "0 8px 16px rgba(0,0,0,0.12)",
-    textAlign: "center",
-    transition: "transform 0.2s ease, box-shadow 0.2s ease",
-  },
-  cardBoxHover: {
-    transform: "translateY(-3px)",
-    boxShadow: "0 12px 20px rgba(0,0,0,0.16)",
-  },
-  question: { 
-    marginBottom: "1rem", 
-    fontSize: "17px",
-    fontWeight: "500",
-    color: "#2e2e2e",
-  },
-  answer: { 
-    marginBottom: "1rem", 
-    color: "#1976d2", 
-    fontSize: "16px",
-    fontStyle: "italic",
-    fontWeight: "500",
-  },
-  buttons: { 
-    display: "flex", 
-    justifyContent: "center", 
-    gap: "12px", 
-    marginBottom: "1rem", 
-    flexWrap: "wrap" 
-  },
-  speakBtn: { 
-    padding: "10px 18px", 
-    borderRadius: "8px", 
-    backgroundColor: "#43a047", 
-    color: "white", 
-    border: "none", 
-    cursor: "pointer",
-    fontWeight: "500",
-    transition: "background-color 0.2s ease",
-  },
-  stopBtn: { 
-    padding: "10px 18px", 
-    borderRadius: "8px", 
-    backgroundColor: "#e53935", 
-    color: "white", 
-    border: "none", 
-    cursor: "pointer",
-    fontWeight: "500",
-    transition: "background-color 0.2s ease",
-  },
-  nextBtn: { 
-    padding: "10px 18px", 
-    borderRadius: "8px", 
-    backgroundColor: "#1e88e5", 
-    color: "white", 
-    border: "none", 
-    cursor: "pointer",
-    fontWeight: "500",
-    transition: "background-color 0.2s ease",
-  },
-  progressContainer: { 
-    marginTop: "1.5rem", 
-    textAlign: "left",
-    padding: "1rem",
-    backgroundColor: "#f8f9fa",
-    borderRadius: "8px",
-  },
-  progressRow: { 
-    marginBottom: "0.7rem", 
-    display: "flex", 
-    alignItems: "center" 
-  },
-  progressBarBg: { 
-    display: "inline-block", 
-    width: "250px", 
-    height: "12px", 
-    backgroundColor: "#e0e0e0", 
-    borderRadius: "6px", 
-    marginLeft: "10px", 
-    overflow: "hidden" 
-  },
-  progressBarFill: { 
-    height: "100%", 
-    transition: "width 0.4s ease-in-out",
-    borderRadius: "6px",
-  },
-  progressText: { 
-    marginLeft: "0.5rem",
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#555",
-  },
-  noFlashcards: { 
-    textAlign: "center", 
-    marginTop: "2rem", 
-    fontSize: "18px",
-    color: "#666",
-    fontWeight: "500",
-  },
-};
+
 export default QnSpeakPage;

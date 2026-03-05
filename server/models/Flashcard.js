@@ -10,4 +10,6 @@ const FlashcardSchema = new mongoose.Schema({
   difficulty: { type: String, required: true },
 });
 
+FlashcardSchema.index({ userId: 1, uploadDate: -1 });
+
 module.exports = mongoose.model('Flashcard', FlashcardSchema);
