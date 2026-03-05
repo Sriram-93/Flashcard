@@ -1,113 +1,183 @@
-# Flashcard App
+# ⚡ FlashcardAI
 
-A full-stack MERN application that leverages AI (Groq API) to automatically generate study flashcards from uploaded PDF documents. The application features a premium glassmorphic UI, text-to-speech functionality, and a quiz mode for comprehensive learning.
+> AI-powered study platform that transforms PDFs into intelligent flashcards, quizzes, and voice-guided study sessions.
 
-## Features
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq-LLama_3-F55036)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel&logoColor=white)
 
-- 📄 **Smart PDF Processing**: Upload any PDF document and let the AI generate a personalized set of flashcards.
-- 🧠 **AI-Powered Generation**: Uses Groq LLM to intelligently extract questions, answers, marks, and difficulty levels from the text.
-- 🎨 **Premium UI/UX**: Modern, responsive design featuring glassmorphism, dynamic background blobs, and smooth animations.
-- 🔐 **Secure Authentication**: User accounts to save and manage individual flashcard decks, with hashed passwords for security.
-- 🗣️ **Text-to-Speech**: Built-in functionality to read out flashcard answers for auditory learners.
-- 📊 **Progress Tracking**: See your mastery across different difficulty levels (Easy, Medium, Hard).
-- 🧩 **Quiz Mode**: Test your knowledge with a dynamically generated multiple-choice quiz based on your flashcards.
-- 🗂️ **History**: Keep track of all your previously uploaded PDFs for quick review.
+---
 
-## Tech Stack
+## ✨ Features
 
-### Frontend
-- **React**: UI library for building the interactive single-page application.
-- **Vanilla CSS**: Custom CSS with CSS variables to manage the premium glassmorphic design system.
-- **PDF.js**: For client-side PDF parsing and validation.
+| Feature | Description |
+|---------|-------------|
+| 📄 **Smart PDF Processing** | Upload any PDF and get AI-generated flashcards instantly |
+| 🧠 **AI Generation** | Groq LLM extracts questions, answers, marks & difficulty levels |
+| 🎨 **Premium UI** | Glassmorphic design with smooth animations and dark mode |
+| 🔐 **Auth System** | Secure signup/login with hashed passwords and JWT tokens |
+| 🗣️ **Text-to-Speech** | Voice-guided study sessions for auditory learners |
+| 📊 **Progress Tracking** | Track mastery across Easy, Medium & Hard levels |
+| 🧩 **Quiz Mode** | Auto-generated multiple-choice quizzes from your flashcards |
+| 🗂️ **Upload History** | Quick access to all previously processed documents |
 
-### Backend
-- **Node.js & Express**: Fast and scalable web server.
-- **MongoDB & Mongoose**: NoSQL database for flexible data storage.
-- **Groq API**: High-performance LLM (Llama 3) for lighting-fast flashcard generation.
-- **bcryptjs**: Secure password hashing.
-- **Multer**: Handling multipart/form-data for PDF uploads.
-- **pdf-parse**: Server-side PDF text extraction.
+---
 
-## Getting Started
+## 🛠️ Tech Stack
+
+**Frontend** — React 18 · Vanilla CSS · Lucide Icons · PDF.js
+
+**Backend** — Node.js · Express · MongoDB · Mongoose · Groq API
+
+**AI/ML** — LangChain · HuggingFace Embeddings · MongoDB Atlas Vector Search
+
+**Deploy** — Vercel (Serverless Functions + Static Hosting)
+
+---
+
+## 📁 Project Structure
+
+```
+Flashcard/
+│
+├── api/
+│   └── index.js                 # Vercel serverless entry point
+│
+├── client/
+│   ├── public/
+│   │   ├── index.html           # HTML template
+│   │   └── manifest.json        # PWA manifest
+│   └── src/
+│       ├── components/
+│       │   ├── Navbar.jsx       # Navigation bar with icons
+│       │   ├── Navbar.css
+│       │   └── ProtectedRoute.jsx
+│       ├── context/
+│       │   ├── AuthContext.js   # Authentication state
+│       │   └── ThemeContext.js  # Dark/light mode
+│       ├── pages/
+│       │   ├── HomePage.jsx     # Landing page
+│       │   ├── LoginPage.jsx    # Authentication
+│       │   ├── SignupPage.jsx
+│       │   ├── InputPage.jsx    # PDF upload
+│       │   ├── ReviewPage.jsx   # Flashcard review
+│       │   ├── DashboardPage.jsx
+│       │   ├── QnSpeakPage.jsx  # Voice study mode
+│       │   ├── QuizPage.jsx     # Quiz mode
+│       │   └── *.css            # Page-specific styles
+│       ├── index.css            # Global design system
+│       ├── index.js             # React entry point
+│       └── App.js               # Router setup
+│
+├── server/
+│   ├── models/
+│   │   ├── User.js              # User schema
+│   │   ├── Flashcard.js         # Flashcard schema
+│   │   ├── History.js           # Upload history
+│   │   ├── Upload.js            # Upload metadata
+│   │   └── JobStatus.js         # Background job tracking
+│   ├── routes/
+│   │   ├── auth.js              # Signup, login, logout, /me
+│   │   ├── flashcards.js        # CRUD + generation
+│   │   ├── history.js           # Upload history
+│   │   └── upload.js            # File upload handling
+│   ├── middleware/
+│   │   ├── auth.js              # JWT verification
+│   │   └── authMiddleware.js
+│   ├── jobs/
+│   │   └── queue.js             # Agenda background jobs
+│   ├── utils/
+│   │   └── LocalEmbeddings.js   # HuggingFace embeddings
+│   ├── validations/
+│   │   └── authValidation.js    # Zod input validation
+│   └── server.js                # Express app entry point
+│
+├── vercel.json                  # Vercel deployment config
+├── package.json                 # Root dependencies (serverless)
+├── .gitignore
+└── README.md
+```
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- MongoDB running locally or a MongoDB Atlas URI
-- A Groq API Key
+
+- **Node.js** v18+
+- **MongoDB** (local or [Atlas](https://cloud.mongodb.com))
+- **Groq API Key** ([console.groq.com](https://console.groq.com))
 
 ### Installation
 
-1. **Clone the repository**
-   \`\`\`bash
-   git clone <repository-url>
-   cd Flashcard
-   \`\`\`
+```bash
+# Clone the repo
+git clone https://github.com/Sriram-93/Flashcard.git
+cd Flashcard
 
-2. **Backend Setup**
-   \`\`\`bash
-   cd server
-   npm install
-   \`\`\`
-   
-   Create a \`.env\` file in the \`server\` directory:
-   \`\`\`env
-   PORT=5000
-   GROQ_API_KEY=your_groq_api_key_here
-   MONGO_URI=mongodb://localhost:27017/flashcardDB # Or your Atlas URI
-   \`\`\`
+# Install backend dependencies
+cd server
+npm install
 
-3. **Frontend Setup**
-   \`\`\`bash
-   cd ../client
-   npm install
-   \`\`\`
+# Install frontend dependencies
+cd ../client
+npm install
+```
 
-   Create a \`.env\` file in the \`client\` directory (optional, but good for custom configuration):
-   \`\`\`env
-   REACT_APP_API_URL=http://localhost:5000/api
-   \`\`\`
+### Environment Variables
 
-### Running the Application
+Create `server/.env`:
 
-1. **Start the backend server**
-   \`\`\`bash
-   cd server
-   npm start
-   \`\`\`
-   *Server will run on http://localhost:5000*
+```env
+PORT=5000
+MONGO_URI=mongodb+srv://your-connection-string
+GROQ_API_KEY=gsk_your_groq_api_key
+JWT_SECRET=your_jwt_secret_here
+```
 
-2. **Start the React frontend**
-   \`\`\`bash
-   cd client
-   npm start
-   \`\`\`
-   *Client will open on http://localhost:3000*
+### Run Locally
 
-## Project Structure
+```bash
+# Terminal 1 — Backend
+cd server
+npm start
+# → http://localhost:5000
 
-\`\`\`
-Flashcard/
-├── client/                 # React Frontend
-│   ├── public/             
-│   └── src/                
-│       ├── components/     # Reusable UI components (Navbar, ProtectedRoute)
-│       ├── context/        # React Context for global state (AuthContext)
-│       ├── pages/          # Main application views (HomePage, InputPage, etc.)
-│       ├── index.css       # Global design system & theme variables
-│       └── App.js          # Main routing setup
-└── server/                 # Express Backend
-    ├── models/             # Mongoose schemas (User, Flashcard, History)
-    ├── routes/             # API endpoints (auth, flashcards, history)
-    └── server.js           # Server entry point & configuration
-\`\`\`
+# Terminal 2 — Frontend
+cd client
+npm start
+# → http://localhost:3000
+```
 
-## Usage Workflow
+---
 
-1. **Sign Up / Log In**: Create an account to start managing your flashcards.
-2. **Upload**: Navigate to the upload page and drop a PDF file.
-3. **Review**: Check the generated flashcards in the Review page. Use the filter to sort by marks.
-4. **Learn**: Go to the QnSpeak page to review flashcards one-by-one with text-to-speech assistance.
-5. **Test**: Take a quiz on the Quiz page to evaluate your understanding.
+## 🌐 Deploy to Vercel
 
-## License
+1. Push this repo to GitHub
+2. Import it at [vercel.com/new](https://vercel.com/new)
+3. Add environment variables in **Settings → Environment Variables**:
+   - `MONGO_URI`
+   - `GROQ_API_KEY`
+   - `JWT_SECRET`
+   - `NODE_ENV` = `production`
+4. Deploy — Vercel auto-detects the `vercel.json` config
+
+> **Note:** Whitelist `0.0.0.0/0` in MongoDB Atlas → Network Access for Vercel's dynamic IPs.
+
+---
+
+## 📖 Usage
+
+1. **Sign Up** — Create your account
+2. **Upload** — Drop a PDF on the upload page
+3. **Review** — Browse generated flashcards, filter by marks
+4. **Speak** — Use text-to-speech for voice-guided study
+5. **Quiz** — Test your knowledge with auto-generated quizzes
+
+---
+
+## 📝 License
+
 MIT
