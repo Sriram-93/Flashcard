@@ -6,7 +6,6 @@
 ![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
 ![Groq](https://img.shields.io/badge/Groq-LLama_3-F55036)
-![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel&logoColor=white)
 
 ---
 
@@ -32,8 +31,6 @@
 **Backend** — Node.js · Express · MongoDB · Mongoose · Groq API
 
 **AI/ML** — LangChain · HuggingFace Embeddings · MongoDB Atlas Vector Search
-
-**Deploy** — Vercel (Serverless Functions + Static Hosting)
 
 ---
 
@@ -150,21 +147,6 @@ cd client
 npm start
 # → http://localhost:3000
 ```
-
----
-
-## 🌐 Deploy to Vercel
-
-1. Push this repo to GitHub
-2. Import it at [vercel.com/new](https://vercel.com/new)
-3. Add environment variables in **Settings → Environment Variables**:
-   - `MONGO_URI`
-   - `GROQ_API_KEY`
-   - `JWT_SECRET`
-   - `NODE_ENV` = `production`
-4. Deploy — Vercel auto-detects the `vercel.json` config
-
-> **Note:** Whitelist `0.0.0.0/0` in MongoDB Atlas → Network Access for Vercel's dynamic IPs.
 
 ---
 
